@@ -1,9 +1,8 @@
 import {useDispatch, useSelector} from "react-redux"; 
 import { useRef, useState, useEffect } from "react";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import app from  '../firebase.js';
+import {app} from  '../firebase';
 import { updateUserStart, updateUserFailure, updateUserSuccess } from "../redux/user/userSlice.js";
-import { UseDispatch } from "react-redux";
 
 export default function Profile() {
 
@@ -24,7 +23,7 @@ export default function Profile() {
     }
   }, [file]);
 
-  const handleFileUpload = () => {
+  const handleFileUpload = (file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
@@ -34,7 +33,7 @@ export default function Profile() {
       (snapshot) => {
         const progress = (snapshot.bytesTransferred /
           snapshot.totalBytes) * 100;
-          setFilePerc(Math.round(progress));
+        setFilePerc(Math.round(progress));
       },
       (error) => {
         setFileUploadError(true);
@@ -42,7 +41,7 @@ export default function Profile() {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => 
           setFormData({ ...formData, avatar: downloadURL})
-        )
+        );
       }
     );
   };
@@ -74,7 +73,7 @@ export default function Profile() {
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
-  }
+  };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -83,7 +82,8 @@ export default function Profile() {
         <input onChange={(e) => setFile(e.target.files[0])} 
           type="file" 
           ref={fileRef}
-          hidden accept="image/*"
+          hidden
+          accept="image/*"
         />
 
         <img onClick={() => fileRef.current.click()}
@@ -94,19 +94,16 @@ export default function Profile() {
 
         <p className="text-sm self-center">
           {fileUploadError ? 
-          (<span className="text-red-700">Error Image upload(Image must be less than 2 mb)</span>) : 
-          filePerc > 0 && filePerc < 100 ? (
-            <span className="text-slate-700">
+            (<span className="text-red-700">
+              Error Image upload(Image must be less than 2 mb)
+            </span>) : filePerc > 0 && filePerc < 100 ? 
+            (<span className="text-slate-700">
               {`Uploading ${filePerc}%`}
-            </span>)
-            :
-            (filePerc === 100 ? (
-              <span className="text-green-700">
-                Image successfully uploaded!
-              </span>)
-              : ('')
-            )
-          }
+            </span>) : (filePerc === 100 ? (
+            <span className="text-green-700">
+              Image successfully uploaded!
+            </span>) : ('')
+            )}
         </p>
 
         <input type="text"
@@ -127,9 +124,9 @@ export default function Profile() {
 
         <input type="password"
           placeholder="password"
+          onChange={handleChange}
           id="password"
           className="border p-3 rounded-lg"
-          onChange={handleChange}
         />
 
         <button disabled={loading}
